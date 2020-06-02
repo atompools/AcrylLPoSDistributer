@@ -11,8 +11,7 @@
     "acryl",
     "blockchain"
   ],
-  "author": "Marc Jansen",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "line-reader-sync": "^0.1.0",
     "request": "^2.81.0",

@@ -10,7 +10,6 @@ var fs = require('fs');
  *     - startBlockHeight: the block from which you want to start distribution for
  *     - endBlock: the block until you want to distribute the earnings
  *     - firstBlockWithLeases: the block where you received the first lease
- *     - distributableMRTPerBlock: amount of MRT distributed per forged block
  *     - filename: file to which the payments for the mass payment tool are written
  *     - node: address of your node in the form http://<ip>:<port
  *     - percentageOfFeesToDistribute: the percentage of Acryl fees that you want to distribute
@@ -18,20 +17,18 @@ var fs = require('fs');
  */
 
 var config = {
-    address: '',
+    address: '3ETdcKsJk1amXniruGQe1QMednw8z44UxBK',
     alias: '',
     startBlockHeight: 462000,
     endBlock: 465000,
     firstBlockWithLeases: 462000,
-    distributableMrtPerBlock: 0,
     filename: 'payments.json',
-    node: 'http://127.0.0.1:6869',
-    percentageOfFeesToDistribute: 90,
+    node: 'http://127.0.0.1:6868',
+    percentageOfFeesToDistribute: 70,
     blockStorage: 'blocks.json'
 };
 
 var payments = [];
-var mrt = [];
 var myLeases = {};
 var myCanceledLeases = {};
 var myForgedBlocks = [];
@@ -68,11 +65,9 @@ var start = function() {
             generator: block.generator,
             acrylFees: block.acrylFees,
             previousBlockAcrylFees: block.previousBlockAcrylFees,
-            transactions: transactions
+            transactions: transactions,
+            reward: 1100000000
         };
-        if (block.height >= 1740000) {
-            blockInfo.reward = block.reward;
-        }
         fs.appendFileSync(config.blockStorage, JSON.stringify(blockInfo) + '\n');
     });
     console.log('preparing payments...');
@@ -105,7 +100,7 @@ var prepareDataStructure = function(blocks) {
 
         block.transactions.forEach(function(transaction) {
             // type 8 are leasing tx
-            if (transaction.type === 8 && (transaction.recipient === config.address || transaction.recipient === "address:" + config.address || transaction.recipient === 'alias:W:' + config.alias)) {
+            if (transaction.type === 8 && (transaction.recipient === config.address || transaction.recipient === "address:" + config.address || transaction.recipient === 'alias:A:' + config.alias)) {
                 transaction.block = block.height;
                 myLeases[transaction.id] = transaction;
             } else if (transaction.type === 9 && myLeases[transaction.leaseId]) { // checking for lease cancel tx
@@ -117,9 +112,10 @@ var prepareDataStructure = function(blocks) {
                 if (transaction.fee < 10 * Math.pow(10, 8)) {
                     acrylFees += transaction.fee;
                 }
-            } else if (block.height > 1090000 && transaction.type === 4) {
-                acrylFees += 100000;
             }
+            // } else if (block.height > 1090000 && transaction.type === 4) { // TODO
+            //     acrylFees += 100000;
+            // }
         });
         if (previousBlock) {
             block.previousBlockAcrylFees = previousBlock.acrylFees;
@@ -201,7 +197,7 @@ var getAllBlocks = function() {
 };
 
 /**
- * This method distributes either Acryl fees and MRT to the active leasers for
+ * This method distributes either Acryl fees to the active leasers for
  * the given block.
  *
  * @param activeLeases active leases for the block in question
@@ -211,25 +207,16 @@ var getAllBlocks = function() {
 var distribute = function(activeLeases, amountTotalLeased, block, previousBlock) {
     var fee;
 
-    if (block.height >= 1740000) {
-        fee = block.acrylFees * 0.4 + block.previousBlockAcrylFees * 0.6 + block.reward;
-    } else if (block.height >= 805000) {
-        fee = block.acrylFees * 0.4 + block.previousBlockAcrylFees * 0.6;
-    } else {
-        fee = block.acrylFees
-    }
+    fee = block.acrylFees * 0.4 + block.previousBlockAcrylFees * 0.6 + block.reward;
 
     for (var address in activeLeases) {
         var share = (activeLeases[address] / amountTotalLeased)
         var amount = fee * share;
-        var amountMRT = share * config.distributableMrtPerBlock;
 
         if (payments[address]) {
             payments[address] += amount * (config.percentageOfFeesToDistribute / 100);
-            mrt[address] += amountMRT;
         } else {
             payments[address] = amount * (config.percentageOfFeesToDistribute / 100);
-            mrt[address] = amountMRT;
         }
     }
 };
@@ -247,16 +234,6 @@ var pay = function() {
             transactions.push({
                 "amount": Number(Math.round(payments[address])),
                 "fee": 100000,
-                "sender": config.address,
-                "attachment": "",
-                "recipient": address
-            });
-        }
-        if (mrt[address] > 0) {
-            transactions.push({
-                "amount": Number(Math.round(mrt[address] * Math.pow(10, 2))),
-                "fee": 100000,
-                "assetId": "4uK8i4ThRGbehENwa6MxyLtxAjAo1Rj9fduborGExarC",
                 "sender": config.address,
                 "attachment": "",
                 "recipient": address

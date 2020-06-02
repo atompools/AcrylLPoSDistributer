@@ -16,7 +16,6 @@ Once the dependencies are installed, the script that generates the payouts need 
  *     - startBlockHeight: the block from which you want to start distribution for
  *     - endBlock: the block until you want to distribute the earnings
  *     - firstBlockWithLeases: the block where you received the first lease
- *     - distributableMRTPerBlock: amount of MRT distributed per forged block
  *     - filename: file to which the payments for the mass payment tool are written
  *     - node: address of your node in the form http://<ip>:<port
  *     - percentageOfFeesToDistribute: the percentage of Acryl fees that you want to distribute
@@ -29,7 +28,6 @@ var config = {
     startBlockHeight: 1800000,
     endBlock: 1820000,
     firstBlockWithLeases: 1800010,
-    distributableMrtPerBlock: 20,
     filename: 'test.json',
     node: 'http://<ip>:6869',
     percentageOfFeesToDistribute: 100,
