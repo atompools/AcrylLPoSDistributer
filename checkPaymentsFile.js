@@ -36,16 +36,16 @@ var start = function() {
                 assets[payment.assetId].amount += payment.amount;
             }
         } else {
-            if (!assets['Waves']) {
+            if (!assets['Acryl']) {
                 assetsFound++;
-                assets['Waves'] = {
+                assets['Acryl'] = {
                     amount: payment.amount,
                     decimals: 8,
-                    name: 'Waves'
+                    name: 'Acryl'
                 };
 
             } else {
-                assets['Waves'].amount += payment.amount;
+                assets['Acryl'].amount += payment.amount;
             }
         }
     });
@@ -68,7 +68,7 @@ var addAssetInfo = function(assets, cb) {
     var counter = 0;
 
     for (var assetId in assets) {
-        if (assetId !== 'Waves') {
+        if (assetId !== 'Acryl') {
             request.get(config.node + '/transactions/info/' + assetId, function(err, response, body) {
                 if (!err) {
                     var asset = JSON.parse(body);

@@ -1,14 +1,14 @@
 {
   "name": "lposdistributor",
   "version": "0.0.1",
-  "description": "An LPoS distributor for the Waves Platform",
+  "description": "An LPoS distributor for the Acryl Platform",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "lpos",
-    "waves",
+    "acryl",
     "blockchain"
   ],
   "author": "Marc Jansen",

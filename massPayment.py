@@ -1,6 +1,6 @@
 import json
 import time
-import pywaves as pw
+import pyacryl as pw
 import time
 
 '''
@@ -8,7 +8,7 @@ import time
         privateKey: the private key of the address you want to distribute from
         file: the calculated payout file
         timeout: timeout between requests send to nodes in ms
-        assetId: the id of the asset you want to distribute, '' for Waves
+        assetId: the id of the asset you want to distribute, '' for Acryl
         nodes: a list of nodes to which the signed transactions should be send to, in the format: http://host:port
 '''
 config = {
@@ -52,8 +52,8 @@ def pay(batch):
 		print('paying in asset: ' + config['assetId'])
 		tx = address.massTransferAssets(batch, pw.Asset(config['assetId']))
 	else:
-		print('paying in Waves!')
-		tx = address.massTransferWaves(batch)
+		print('paying in Acryl!')
+		tx = address.massTransferAcryl(batch)
 	print('tx: ' + str(tx))
 
 with open(config['file']) as json_data:

@@ -6,7 +6,7 @@ var request = require('request');
  *      - filename: file to which the payments for the mass payment tool are written
  *      - node: address of your node in the form http://<ip>:<port>
  *      - apiKey: the API key of the node that is used for distribution
- *      - feeAssetId: id of the asset used to pay the fee, null for Waves
+ *      - feeAssetId: id of the asset used to pay the fee, null for Acryl
  *      - fee: amount of fee to spend for the tx
  */
 var config = {

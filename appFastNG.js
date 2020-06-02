@@ -13,7 +13,7 @@ var fs = require('fs');
  *     - distributableMRTPerBlock: amount of MRT distributed per forged block
  *     - filename: file to which the payments for the mass payment tool are written
  *     - node: address of your node in the form http://<ip>:<port
- *     - percentageOfFeesToDistribute: the percentage of Waves fees that you want to distribute
+ *     - percentageOfFeesToDistribute: the percentage of Acryl fees that you want to distribute
  *     - blockStorage: file for storing block history
  */
 
@@ -66,8 +66,8 @@ var start = function() {
         var blockInfo = {
             height: block.height,
             generator: block.generator,
-            wavesFees: block.wavesFees,
-            previousBlockWavesFees: block.previousBlockWavesFees,
+            acrylFees: block.acrylFees,
+            previousBlockAcrylFees: block.previousBlockAcrylFees,
             transactions: transactions
         };
         if (block.height >= 1740000) {
@@ -97,7 +97,7 @@ var start = function() {
 var prepareDataStructure = function(blocks) {
     var previousBlock;
     blocks.forEach(function(block) {
-        var wavesFees = 0;
+        var acrylFees = 0;
 
         if (block.generator === config.address) {
             myForgedBlocks.push(block);
@@ -112,19 +112,19 @@ var prepareDataStructure = function(blocks) {
                 transaction.block = block.height;
                 myCanceledLeases[transaction.leaseId] = transaction;
             }
-            // considering Waves fees
+            // considering Acryl fees
             if (!transaction.feeAsset || transaction.feeAsset === '' || transaction.feeAsset === null) {
                 if (transaction.fee < 10 * Math.pow(10, 8)) {
-                    wavesFees += transaction.fee;
+                    acrylFees += transaction.fee;
                 }
             } else if (block.height > 1090000 && transaction.type === 4) {
-                wavesFees += 100000;
+                acrylFees += 100000;
             }
         });
         if (previousBlock) {
-            block.previousBlockWavesFees = previousBlock.wavesFees;
+            block.previousBlockAcrylFees = previousBlock.acrylFees;
         }
-        block.wavesFees = wavesFees;
+        block.acrylFees = acrylFees;
         previousBlock = block;
     });
 };
@@ -201,22 +201,22 @@ var getAllBlocks = function() {
 };
 
 /**
- * This method distributes either Waves fees and MRT to the active leasers for
+ * This method distributes either Acryl fees and MRT to the active leasers for
  * the given block.
  *
  * @param activeLeases active leases for the block in question
- * @param amountTotalLeased total amount of leased waves in this particular block
+ * @param amountTotalLeased total amount of leased acryl in this particular block
  * @param block the block to consider
  */
 var distribute = function(activeLeases, amountTotalLeased, block, previousBlock) {
     var fee;
 
     if (block.height >= 1740000) {
-        fee = block.wavesFees * 0.4 + block.previousBlockWavesFees * 0.6 + block.reward;
+        fee = block.acrylFees * 0.4 + block.previousBlockAcrylFees * 0.6 + block.reward;
     } else if (block.height >= 805000) {
-        fee = block.wavesFees * 0.4 + block.previousBlockWavesFees * 0.6;
+        fee = block.acrylFees * 0.4 + block.previousBlockAcrylFees * 0.6;
     } else {
-        fee = block.wavesFees
+        fee = block.acrylFees
     }
 
     for (var address in activeLeases) {
@@ -274,10 +274,10 @@ var pay = function() {
 
 /**
  * This method returns (block-exact) the active leases and the total amount
- * of leased Waves for a given block.
+ * of leased Acryl for a given block.
  *
  * @param block the block to consider
- * @returns {{totalLeased: number, activeLeases: {}}} total amount of leased waves and active leases for the given block
+ * @returns {{totalLeased: number, activeLeases: {}}} total amount of leased acryl and active leases for the given block
  */
 var getActiveLeasesAtBlock = function(block) {
     var activeLeases = [];

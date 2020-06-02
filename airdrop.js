@@ -4,7 +4,7 @@ var fs = require('fs');
 /**
  * Put your settings here:
  *     - address: the address of your node that you want to distribute from
- *     - block: the block for which you want to calculate your richlist (only used for distribution to Waves holders)
+ *     - block: the block for which you want to calculate your richlist (only used for distribution to Acryl holders)
  *     - total: amount of supply for the reference asset
  *     - amountToDistribute: amount of tokens that you want to distribute (have decimals in mind here...)
  *     - assetId: id of the reference asset
@@ -44,7 +44,7 @@ var start = function() {
             }
         }).getBody());
     } else {
-        richlist= JSON.parse(syncRequest('GET', config.node + '/debug/stateWaves/' + config.block, {
+        richlist= JSON.parse(syncRequest('GET', config.node + '/debug/stateAcryl/' + config.block, {
             'headers': {
                 'Connection': 'keep-alive'
             }

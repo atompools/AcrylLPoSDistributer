@@ -1,5 +1,5 @@
-# WavesLPoSDistributer
-A revenue distribution tool for Waves nodes
+# AcrylLPoSDistributer
+A revenue distribution tool for Acryl nodes
 
 ## Installation
 First of all, you need to install Node.js (https://nodejs.org/en/) and NPM. Afterwards the installation of the dependencies could be done via:
@@ -19,7 +19,7 @@ Once the dependencies are installed, the script that generates the payouts need 
  *     - distributableMRTPerBlock: amount of MRT distributed per forged block
  *     - filename: file to which the payments for the mass payment tool are written
  *     - node: address of your node in the form http://<ip>:<port
- *     - percentageOfFeesToDistribute: the percentage of Waves fees that you want to distribute
+ *     - percentageOfFeesToDistribute: the percentage of Acryl fees that you want to distribute
  *     - blockStorage: file for storing block history
  */
 
@@ -124,7 +124,7 @@ Configuration is done via the configuration section:
         privateKey: the private key of the address you want to distribute from
         file: the calculated payout file
         timeout: timeout between requests send to nodes in ms
-        assetId: the id of the asset you want to distribute, '' for Waves
+        assetId: the id of the asset you want to distribute, '' for Acryl
         nodes: a list of nodes to which the signed transactions should be send to, in the format: http://host:port
 '''
 config = {
