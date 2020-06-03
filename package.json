@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate": "node src/appFastNG.js",
     "payment": "node src/massPayment.js",
-    "check": "node src/checkPaymentsFile.js"
+    "check": "node src/checkPaymentsFile.js",
+    "removeAll": "rm blocks.json height.json payments.json"
   },
   "keywords": [
     "lpos",
