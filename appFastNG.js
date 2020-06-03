@@ -5,6 +5,25 @@ var fs = require('fs');
 
 const config = require('./config.json');
 
+currentHeight = JSON.parse(request('GET', config.node + '/blocks/height', {
+    'headers': {
+        'Connection': 'keep-alive'
+    }
+}).getBody('utf8'));
+
+config.endBlock = currentHeight.height - 10;
+
+if (fs.existsSync('height.json')) {
+    var json = JSON.parse(fs.readFileSync('height.json', "utf8"));
+    config.startBlockHeight = json.height
+} else {
+    config.startBlockHeight = config.firstBlockWithLeases;
+}
+
+fs.writeFileSync("height.json", JSON.stringify({ "height": config.endBlock }));
+
+console.log(config)
+
 var payments = [];
 var myLeases = {};
 var myCanceledLeases = {};
@@ -259,12 +278,6 @@ var getActiveLeasesAtBlock = function (block) {
 
     return { totalLeased: totalLeased, activeLeases: activeLeasesPerAddress };
 };
-
-var args = process.argv.slice(2);
-config.startBlockHeight = args[0];
-config.endBlock = args[1];
-
-console.log(config)
 
 if ((config.startBlockHeight && config.startBlockHeight !== 0) || (config.endBlock && config.endBlock !== 0)) {
     start();

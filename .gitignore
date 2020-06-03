@@ -1,2 +1,4 @@
 node_modules/
 payments.json
+blocks.json
+height.json
