@@ -13,14 +13,14 @@ currentHeight = JSON.parse(request('GET', config.node + '/blocks/height', {
 
 config.endBlock = currentHeight.height - 10;
 
-if (fs.existsSync('../json/height.json')) {
-    var json = JSON.parse(fs.readFileSync('../json/height.json', "utf8"));
+if (fs.existsSync('height.json')) {
+    var json = JSON.parse(fs.readFileSync('height.json', "utf8"));
     config.startBlockHeight = json.height
 } else {
     config.startBlockHeight = config.firstBlockWithLeases;
 }
 
-fs.writeFileSync("../json/height.json", JSON.stringify({ "height": config.endBlock }));
+fs.writeFileSync("height.json", JSON.stringify({ "height": config.endBlock }));
 
 console.log("----------CONFIG----------");
 console.log(config);
