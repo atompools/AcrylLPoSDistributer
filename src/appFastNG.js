@@ -202,7 +202,7 @@ var getAllBlocks = function () {
  * @param amountTotalLeased total amount of leased acryl in this particular block
  * @param block the block to consider
  */
-var distribute = function (activeLeases, amountTotalLeased, block, previousBlock) {
+var distribute = function (activeLeases, amountTotalLeased, block) {
     var fee;
 
     fee = block.acrylFees * 0.4 + block.previousBlockAcrylFees * 0.6 + block.reward;
