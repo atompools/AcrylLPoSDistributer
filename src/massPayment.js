@@ -1,7 +1,7 @@
 var fs = require('fs');
 var request = require('request');
 
-const config = require('./config.json');
+const config = require('../config/config.json');
 
 /**
  * The method that starts the payment process.

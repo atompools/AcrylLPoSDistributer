@@ -4,9 +4,9 @@
   "description": "An LPoS distributor for the Acryl Platform",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "generate": "node appFastNG.js",
-    "payment": "node massPayment.js",
-    "check": "node checkPaymentsFile.js"
+    "generate": "node src/appFastNG.js",
+    "payment": "node src/massPayment.js",
+    "check": "node src/checkPaymentsFile.js"
   },
   "keywords": [
     "lpos",

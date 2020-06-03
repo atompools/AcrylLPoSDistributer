@@ -3,7 +3,7 @@ var LineReaderSync = require("line-reader-sync")
 
 var fs = require('fs');
 
-const config = require('./config.json');
+const config = require('../config/config.json');
 
 currentHeight = JSON.parse(request('GET', config.node + '/blocks/height', {
     'headers': {
@@ -13,16 +13,18 @@ currentHeight = JSON.parse(request('GET', config.node + '/blocks/height', {
 
 config.endBlock = currentHeight.height - 10;
 
-if (fs.existsSync('height.json')) {
-    var json = JSON.parse(fs.readFileSync('height.json', "utf8"));
+if (fs.existsSync('../json/height.json')) {
+    var json = JSON.parse(fs.readFileSync('../json/height.json', "utf8"));
     config.startBlockHeight = json.height
 } else {
     config.startBlockHeight = config.firstBlockWithLeases;
 }
 
-fs.writeFileSync("height.json", JSON.stringify({ "height": config.endBlock }));
+fs.writeFileSync("../json/height.json", JSON.stringify({ "height": config.endBlock }));
 
-console.log(config)
+console.log("----------CONFIG----------");
+console.log(config);
+console.log("----------CONFIG----------");
 
 var payments = [];
 var myLeases = {};
