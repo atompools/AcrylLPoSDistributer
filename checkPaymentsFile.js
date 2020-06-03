@@ -8,7 +8,7 @@ var request = require('request');
  */
 var config = {
     filename: 'payments.json',
-    node: 'https://nodes.acrylplatform.com/'
+    node: 'https://nodes.acrylplatform.com'
 };
 
 var payments;
