@@ -19,9 +19,9 @@ var fs = require('fs');
 var config = {
     address: '3ETdcKsJk1amXniruGQe1QMednw8z44UxBK',
     alias: '',
-    startBlockHeight: 462000,
-    endBlock: 465000,
-    firstBlockWithLeases: 462000,
+    startBlockHeight: 721600,
+    endBlock: 726600,
+    firstBlockWithLeases: 721600,
     filename: 'payments.json',
     node: 'http://127.0.0.1:6868',
     percentageOfFeesToDistribute: 70,

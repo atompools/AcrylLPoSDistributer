@@ -7,8 +7,8 @@ var request = require('request');
  *     - node: address of your node in the form http://<ip>:<port
  */
 var config = {
-    filename: 'test.json',
-    node: 'http://5.189.136.6:6869'
+    filename: 'payments.json',
+    node: 'https://nodes.acrylplatform.com/'
 };
 
 var payments;
