@@ -21,7 +21,7 @@ var config = {
     assetToDistributeId: '',
     filename: '',
     node: '',
-    excludeList: [ ]
+    excludeList: []
 };
 
 var total = 0;
@@ -34,24 +34,24 @@ var totalDistributed = 0;
  * and serializing them into a file that could be used as input for the
  * masspayment tool.
  */
-var start = function() {
+var start = function () {
     var richlist;
 
     if (config.assetId && config.assetId.length > 0) {
-        richlist= JSON.parse(syncRequest('GET', config.node + '/assets/' + config.assetId + '/distribution', {
+        richlist = JSON.parse(syncRequest('GET', config.node + '/assets/' + config.assetId + '/distribution', {
             'headers': {
                 'Connection': 'keep-alive'
             }
         }).getBody());
     } else {
-        richlist= JSON.parse(syncRequest('GET', config.node + '/debug/stateAcryl/' + config.block, {
+        richlist = JSON.parse(syncRequest('GET', config.node + '/debug/stateAcryl/' + config.block, {
             'headers': {
                 'Connection': 'keep-alive'
             }
         }).getBody());
     }
 
-    config.excludeList.forEach(function(excludeAddress) {
+    config.excludeList.forEach(function (excludeAddress) {
         richlist[excludeAddress] = 0;
     });
     total = checkTotalDistributableAmount(richlist);
@@ -64,7 +64,7 @@ var start = function() {
  * @param richlist the richlist for the reference asset
  * @returns {number} total supply of the reference asset
  */
-var checkTotalDistributableAmount = function(richlist) {
+var checkTotalDistributableAmount = function (richlist) {
     var total = 0;
     for (var address in richlist) {
         var amount = richlist[address];
@@ -81,7 +81,7 @@ var checkTotalDistributableAmount = function(richlist) {
  *
  * @param richlist the richlist for the reference asset
  */
-var startDistribute = function(richlist) {
+var startDistribute = function (richlist) {
     var transactions = [];
 
     for (var address in richlist) {
@@ -92,7 +92,7 @@ var startDistribute = function(richlist) {
 
 
         totalDistributed += Number(amountToSend);
-        transactions.push( { address: address, amount: amountToSend });
+        transactions.push({ address: address, amount: amountToSend });
     }
 
     sendToRecipients(transactions, 0);
@@ -105,7 +105,7 @@ var startDistribute = function(richlist) {
  * @param txList list of transactions that should be stored
  * @param index current index of the payments
  */
-var sendToRecipients = function(txList, index) {
+var sendToRecipients = function (txList, index) {
     var payment = {
         "amount": txList[index].amount,
         "fee": 100000,
@@ -122,7 +122,7 @@ var sendToRecipients = function(txList, index) {
     if (index < txList.length) {
         sendToRecipients(txList, index);
     } else {
-        fs.writeFile(config.filename, JSON.stringify(payments), {}, function(err) {
+        fs.writeFile(config.filename, JSON.stringify(payments), {}, function (err) {
             if (err) {
                 console.log(err);
             }
