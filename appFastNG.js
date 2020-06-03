@@ -3,30 +3,7 @@ var LineReaderSync = require("line-reader-sync")
 
 var fs = require('fs');
 
-/**
- * Put your settings here:
- *     - address: the address of your node that you want to distribute from
- *     - alias: the alias of the node address
- *     - startBlockHeight: the block from which you want to start distribution for
- *     - endBlock: the block until you want to distribute the earnings
- *     - firstBlockWithLeases: the block where you received the first lease
- *     - filename: file to which the payments for the mass payment tool are written
- *     - node: address of your node in the form http://<ip>:<port
- *     - percentageOfFeesToDistribute: the percentage of Acryl fees that you want to distribute
- *     - blockStorage: file for storing block history
- */
-
-var config = {
-    address: '3ETdcKsJk1amXniruGQe1QMednw8z44UxBK',
-    alias: '',
-    startBlockHeight: 721600,
-    endBlock: 726600,
-    firstBlockWithLeases: 721600,
-    filename: 'payments.json',
-    node: 'http://127.0.0.1:6868',
-    percentageOfFeesToDistribute: 70,
-    blockStorage: 'blocks.json'
-};
+const config = require('./config.json');
 
 var payments = [];
 var myLeases = {};
@@ -39,7 +16,7 @@ var myForgedBlocks = [];
  * and serializing them into a file that could be used as input for the
  * masspayment tool.
  */
-var start = function() {
+var start = function () {
     console.log('getting blocks...');
     var blocks = getAllBlocks();
     if (fs.existsSync(config.blockStorage)) {
@@ -47,11 +24,11 @@ var start = function() {
     }
     console.log('preparing datastructures...');
     prepareDataStructure(blocks);
-    blocks.forEach(function(block) {
+    blocks.forEach(function (block) {
         var transactions = [];
 
         if (block.height < config.startBlockHeight) {
-            block.transactions.forEach(function(tx) {
+            block.transactions.forEach(function (tx) {
                 if (tx.type === 8 || tx.type === 9) {
                     transactions.push(tx);
                 }
@@ -71,7 +48,7 @@ var start = function() {
         fs.appendFileSync(config.blockStorage, JSON.stringify(blockInfo) + '\n');
     });
     console.log('preparing payments...');
-    myForgedBlocks.forEach(function(block) {
+    myForgedBlocks.forEach(function (block) {
         if (block.height >= config.startBlockHeight && block.height <= config.endBlock) {
             var blockLeaseData = getActiveLeasesAtBlock(block);
             var activeLeasesForBlock = blockLeaseData.activeLeases;
@@ -89,16 +66,16 @@ var start = function() {
  *
  *   @param blocks all blocks that should be considered
  */
-var prepareDataStructure = function(blocks) {
+var prepareDataStructure = function (blocks) {
     var previousBlock;
-    blocks.forEach(function(block) {
+    blocks.forEach(function (block) {
         var acrylFees = 0;
 
         if (block.generator === config.address) {
             myForgedBlocks.push(block);
         }
 
-        block.transactions.forEach(function(transaction) {
+        block.transactions.forEach(function (transaction) {
             // type 8 are leasing tx
             if (transaction.type === 8 && (transaction.recipient === config.address || transaction.recipient === "address:" + config.address || transaction.recipient === 'alias:A:' + config.alias)) {
                 transaction.block = block.height;
@@ -130,7 +107,7 @@ var prepareDataStructure = function(blocks) {
  *
  * @returns {Array} all relevant blocks
  */
-var getAllBlocks = function() {
+var getAllBlocks = function () {
     // leases have been resetted in block 462000, therefore, this is the first relevant block to be considered
     var firstBlockWithLeases = config.firstBlockWithLeases;
     var currentStartBlock = firstBlockWithLeases;
@@ -141,9 +118,9 @@ var getAllBlocks = function() {
         lrs = new LineReaderSync(config.blockStorage);
 
         var lineFound = true;
-        while(lineFound){
+        while (lineFound) {
             var line = lrs.readline()
-            if(line){
+            if (line) {
                 blocks.push(JSON.parse(line));
             } else {
                 lineFound = false;
@@ -179,7 +156,7 @@ var getAllBlocks = function() {
             }).getBody('utf8'));
         }
         if (currentBlocks.length > 0) {
-            currentBlocks.forEach(function(block) {
+            currentBlocks.forEach(function (block) {
                 if (block.height <= config.endBlock) {
                     blocks.push(block);
                 }
@@ -204,7 +181,7 @@ var getAllBlocks = function() {
  * @param amountTotalLeased total amount of leased acryl in this particular block
  * @param block the block to consider
  */
-var distribute = function(activeLeases, amountTotalLeased, block, previousBlock) {
+var distribute = function (activeLeases, amountTotalLeased, block, previousBlock) {
     var fee;
 
     fee = block.acrylFees * 0.4 + block.previousBlockAcrylFees * 0.6 + block.reward;
@@ -225,7 +202,7 @@ var distribute = function(activeLeases, amountTotalLeased, block, previousBlock)
  * Method that creates the concrete payment tx and writes it to the file
  * configured in the config section.
  */
-var pay = function() {
+var pay = function () {
     var transactions = [];
     for (var address in payments) {
         var payment = (payments[address] / Math.pow(10, 8));
@@ -240,7 +217,7 @@ var pay = function() {
             });
         }
     }
-    fs.writeFile(config.filename, JSON.stringify(transactions), {}, function(err) {
+    fs.writeFile(config.filename, JSON.stringify(transactions), {}, function (err) {
         if (!err) {
             console.log('payments written to ' + config.filename + '!');
         } else {
@@ -256,7 +233,7 @@ var pay = function() {
  * @param block the block to consider
  * @returns {{totalLeased: number, activeLeases: {}}} total amount of leased acryl and active leases for the given block
  */
-var getActiveLeasesAtBlock = function(block) {
+var getActiveLeasesAtBlock = function (block) {
     var activeLeases = [];
     var totalLeased = 0;
     var activeLeasesPerAddress = {};
@@ -283,4 +260,12 @@ var getActiveLeasesAtBlock = function(block) {
     return { totalLeased: totalLeased, activeLeases: activeLeasesPerAddress };
 };
 
-start();
+var args = process.argv.slice(2);
+config.startBlockHeight = args[0];
+config.endBlock = args[1];
+
+console.log(config)
+
+if ((config.startBlockHeight && config.startBlockHeight !== 0) || (config.endBlock && config.endBlock !== 0)) {
+    start();
+}

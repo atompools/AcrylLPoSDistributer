@@ -1,0 +1,13 @@
+{
+    "address": "3ETdcKsJk1amXniruGQe1QMednw8z44UxBK",
+    "alias": "",
+    "firstBlockWithLeases": 721600,
+    "filename": "payments.json",
+    "node": "http://127.0.0.1:6868",
+    "percentageOfFeesToDistribute": 70,
+    "blockStorage": "blocks.json",
+    "apiKey": "atom",
+    "feeAssetId": null,
+    "fee": 10000,
+    "remoteNode": "https://nodes.acrylplatform.com"
+}

@@ -1,15 +1,7 @@
 var fs = require('fs');
 var request = require('request');
 
-/**
- * Put your settings here:
- *     - filename: file to check for payments
- *     - node: address of your node in the form http://<ip>:<port
- */
-var config = {
-    filename: 'payments.json',
-    node: 'https://nodes.acrylplatform.com'
-};
+const config = require('./config.json');
 
 var payments;
 var assets = {};
@@ -69,7 +61,7 @@ var addAssetInfo = function(assets, cb) {
 
     for (var assetId in assets) {
         if (assetId !== 'Acryl') {
-            request.get(config.node + '/transactions/info/' + assetId, function(err, response, body) {
+            request.get(config.remoteNode + '/transactions/info/' + assetId, function(err, response, body) {
                 if (!err) {
                     var asset = JSON.parse(body);
 
