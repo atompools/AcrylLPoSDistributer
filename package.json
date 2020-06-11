@@ -9,7 +9,8 @@
     "payment": "node src/massPayment.js",
     "check": "node src/checkPaymentsFile.js",
     "removeAll": "rm blocks.json height.json payments.json leases.json",
-    "lg": "npm run leases && npm run generate"
+    "lg": "npm run leases && npm run generate",
+    "lgp": "npm run leases && npm run generate && npm run payment"
   },
   "keywords": [
     "lpos",
