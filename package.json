@@ -4,6 +4,7 @@
   "description": "An LPoS distributor for the Acryl Platform",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "leases": "node src/leases.js",
     "generate": "node src/appFastNG.js",
     "payment": "node src/massPayment.js",
     "check": "node src/checkPaymentsFile.js",
@@ -18,6 +19,7 @@
   "dependencies": {
     "line-reader-sync": "^0.1.0",
     "request": "^2.81.0",
+    "sqlite3": "^4.1.1",
     "sync-request": "^4.0.2"
   }
 }
