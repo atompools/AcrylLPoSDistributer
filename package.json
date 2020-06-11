@@ -5,10 +5,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "leases": "node src/leases.js",
-    "generate": "node src/appFastNG.js",
+    "generate": "node src/distribute.js",
     "payment": "node src/massPayment.js",
     "check": "node src/checkPaymentsFile.js",
-    "removeAll": "rm blocks.json height.json payments.json"
+    "removeAll": "rm blocks.json height.json payments.json leases.json",
+    "lg": "npm run leases && npm run generate"
   },
   "keywords": [
     "lpos",

@@ -13,18 +13,26 @@ currentHeight = JSON.parse(request('GET', config.node + '/blocks/height', {
 }).getBody('utf8'));
 
 config.endBlock = currentHeight.height - 10;
+
+if (fs.existsSync('height.json')) {
+    var json = JSON.parse(fs.readFileSync('height.json', "utf8"));
+    config.startBlockHeight = json.height
+} else {
+    config.startBlockHeight = config.firstBlockWithLeases;
+}
+
+fs.writeFileSync("height.json", JSON.stringify({ "height": config.endBlock }));
 ///
 ///
 ///
 /////////////////////////////////////
 
-var myLeases = {};
-var myCanceledLeases = {};
+var payments = [];
+var myForgedBlocks = [];
 var previousBlock;
 
 var getAllBlocks = function () {
-    var firstBlockWithLeases = config.firstBlockWithLeases;
-    var currentStartBlock = firstBlockWithLeases;
+    var currentStartBlock = config.startBlockHeight;
     var steps = 100;
 
     while (currentStartBlock < config.endBlock) {
@@ -70,15 +78,11 @@ var getAllBlocks = function () {
 var prepareDataStructure = function (block) {
     var acrylFees = 0;
 
+    if (block.generator === config.address) {
+        myForgedBlocks.push(block);
+    }
+
     block.transactions.forEach(function (transaction) {
-        // type 8 are leasing tx
-        if (transaction.type === 8 && (transaction.recipient === config.address || transaction.recipient === "address:" + config.address || transaction.recipient === 'alias:A:' + config.alias)) {
-            transaction.block = block.height;
-            myLeases[transaction.id] = transaction;
-        } else if (transaction.type === 9 && myLeases[transaction.leaseId]) { // checking for lease cancel tx
-            transaction.block = block.height;
-            myCanceledLeases[transaction.leaseId] = transaction;
-        }
         // considering Acryl fees
         if (!transaction.feeAsset || transaction.feeAsset === '' || transaction.feeAsset === null) {
             if (transaction.fee < 10 * Math.pow(10, 8)) {
@@ -95,41 +99,71 @@ var prepareDataStructure = function (block) {
     previousBlock = block;
 };
 
-var getActiveLeasesAtBlock = function (height) {
-    var activeLeases = [];
-    var totalLeased = 0;
-    var activeLeasesPerAddress = {};
+var distribute = function (activeLeases, amountTotalLeased, block) {
+    var fee;
 
-    for (var leaseId in myLeases) {
-        var currentLease = myLeases[leaseId];
+    fee = block.acrylFees * 0.4 + block.previousBlockAcrylFees * 0.6 + 1100000000;
 
-        if (!myCanceledLeases[leaseId] || myCanceledLeases[leaseId].block > height) {
-            activeLeases.push(currentLease);
+    for (var address in activeLeases) {
+        var share = (activeLeases[address] / amountTotalLeased)
+        var amount = fee * share;
+
+        if (payments[address]) {
+            payments[address] += amount * (config.percentageOfFeesToDistribute / 100);
+        } else {
+            payments[address] = amount * (config.percentageOfFeesToDistribute / 100);
         }
     }
-    activeLeases.forEach(function (lease) {
-        if (height > lease.block + 1000) {
-            if (!activeLeasesPerAddress[lease.sender]) {
-                activeLeasesPerAddress[lease.sender] = lease.amount;
-            } else {
-                activeLeasesPerAddress[lease.sender] += lease.amount;
-            }
-
-            totalLeased += lease.amount;
-        }
-    });
-
-    return { totalLeased: totalLeased, activeLeases: activeLeasesPerAddress };
 };
 
+var pay = function () {
+    var transactions = [];
+    for (var address in payments) {
+        var payment = (payments[address] / Math.pow(10, 8));
+
+        if (payment > 0) {
+            transactions.push({
+                "amount": Number(Math.round(payments[address])),
+                "fee": 100000,
+                "sender": config.address,
+                "attachment": "",
+                "recipient": address
+            });
+        }
+    }
+    fs.writeFile(config.filename, JSON.stringify(transactions), {}, function (err) {
+        if (!err) {
+            console.log('payments written to ' + config.filename + '!');
+        } else {
+            console.log(err);
+        }
+    });
+};
 /////////////////////////////////////
 ////
 ////  MAIN
 ////
 getAllBlocks();
-var blockLeaseData = getActiveLeasesAtBlock(config.endBlock);
-var activeLeases = blockLeaseData.activeLeases;
-fs.writeFileSync("leases.json", JSON.stringify(activeLeases));
+
+myForgedBlocks.forEach(function (block) {
+    if (block.height >= config.startBlockHeight && block.height <= config.endBlock) {
+
+        if (fs.existsSync('leases.json')) {
+            var json = JSON.parse(fs.readFileSync('leases.json', "utf8"));
+        }
+
+        var activeLeasesForBlock = json;
+        var amountTotalLeased = 0;
+
+        for (var address in activeLeasesForBlock) {
+            amountTotalLeased += activeLeasesForBlock[address];
+        }
+
+        distribute(activeLeasesForBlock, amountTotalLeased, block);
+    }
+});
+
+pay();
 ////
 ////
 ////
